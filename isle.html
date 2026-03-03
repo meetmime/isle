@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isle - 你的心理愈疗小岛</title>
+    <style>
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #F7F4EF; font-family: 'Georgia', serif; color: #5C5853; overflow: hidden; cursor: pointer; }
+        #start-screen { font-size: 18px; letter-spacing: 4px; transition: opacity 1.5s ease; position: absolute; }
+        .breathing-orb { width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, #E1D9D1 0%, rgba(225, 217, 209, 0) 70%); box-shadow: 0 0 40px 20px rgba(225, 217, 209, 0.4); opacity: 0; transition: opacity 3s ease; position: absolute; top: 15%; }
+        .animate-breathe { animation: breathe 10s ease-in-out infinite; }
+        @keyframes breathe { 0% { transform: scale(0.8); opacity: 0.6; } 40% { transform: scale(1.4); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.6; } }
+        #chat-history { width: 90%; max-width: 500px; height: 50vh; margin-top: 60px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; opacity: 0; transition: opacity 2s ease; position: absolute; top: 5%; padding: 20px; }
+        .message { font-size: 15px; line-height: 1.8; letter-spacing: 1px; animation: fadeIn 0.8s ease forwards; }
+        .user-msg { text-align: right; color: #8C857D; margin-left: 15%; font-style: italic; }
+        .ai-msg { text-align: left; color: #5C5853; margin-right: 10%; border-left: 1px solid #D5D0C8; padding-left: 15px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-box { margin-top: 400px; width: 320px; display: flex; align-items: center; border-bottom: 1px solid #D5D0C8; padding-bottom: 8px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: none; }
+        .chat-box.visible { opacity: 1; pointer-events: auto; }
+        .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-family: 'Georgia', serif; color: #5C5853; font-size: 15px; }
+        .chat-box button { background: transparent; border: none; color: #8C857D; cursor: pointer; font-size: 13px; letter-spacing: 2px; }
+    </style>
+</head>
+<body onclick="startJourney()">
+
+    <audio id="bgm" loop><source src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" type="audio/mpeg"></audio>
+    <div id="start-screen">轻触屏幕，开启深度愈疗</div>
+    <div class="breathing-orb" id="orb"></div>
+    <div id="chat-history"><div class="message ai-msg" id="first-greeting" style="opacity: 0;">我是 Isle。在这一刻，抛开所有的社会身份，你的灵魂感受到了什么？</div></div>
+    <div class="chat-box" id="chat-input-container"><input type="text" id="user-input" placeholder="深呼吸，写下..." onkeypress="handleEnter(event)"><button onclick="sendMessage()" id="send-btn">深入</button></div>
+
+    <script>
+        // 🚨 填入你的 API KEY
+        const API_KEY = 'AIzaSyDNxFYaam0j03Q4bwnlQBUwQTQtl9FmK7Y'; 
+
+        let hasStarted = false; 
+        let history = [];
+
+        function startJourney() {
+            if (hasStarted) return; 
+            hasStarted = true;
+            document.getElementById("bgm").play().catch(()=>{});
+            document.getElementById("start-screen").style.opacity = 0;
+            setTimeout(() => { document.getElementById("orb").style.opacity = 1; document.getElementById("orb").classList.add("animate-breathe"); }, 1000);
+            setTimeout(() => { document.getElementById("chat-history").style.opacity = 1; document.getElementById("first-greeting").style.opacity = 1; }, 10000);
+            setTimeout(() => { document.getElementById("chat-input-container").classList.add("visible"); }, 12000); 
+        }
+
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
+
+        async function sendMessage() {
+            const input = document.getElementById("user-input");
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chatHistory = document.getElementById("chat-history");
+            const btn = document.getElementById("send-btn");
+
+            chatHistory.innerHTML += `<div class="message user-msg">${text}</div>`;
+            input.value = "";
+            btn.innerText = "溯源..."; btn.disabled = true;
+
+            // 🧠 深度心理学 Prompt：融合阿德勒、荣格、弗兰克尔
+            const sysPrompt = "你是一个名为Isle的资深心理分析师。你精通荣格的分析心理学、阿德勒的个体心理学及弗兰克尔的意义疗法。你不提供廉价的安慰，而是通过洞察潜意识来启发用户。回复要求：1. 温暖但极简。2. 必须结合心理学深度视角。3. 每一句回复最后必须接一个关于‘内在探索’的反问。字数控制在60字内。";
+
+            history.push({ role: "user", parts: [{ text: text }] });
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: history, systemInstruction: { parts: [{ text: sysPrompt }] } })
+                });
+                
+                const data = await response.json();
+                const aiReply = data.candidates[0].content.parts[0].text;
+                
+                history.push({ role: "model", parts: [{ text: aiReply }] });
+                chatHistory.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
+                chatHistory.scrollTop = chatHistory.scrollHeight; 
+
+            } catch (error) {
+                chatHistory.innerHTML += `<div class="message ai-msg">这种阻抗或许正是探索的开始。你能试着描述那种无法言说的压抑感吗？</div>`;
+            }
+            btn.innerText = "深入"; btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
