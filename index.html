@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isle - 你的心理愈疗小岛</title>
     <style>
-        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'PingFang SC', 'Georgia', serif; overflow: hidden; cursor: pointer; background: #000; }
-        #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1500&q=80') no-repeat center center; background-size: cover; z-index: -2; transition: transform 20s linear; }
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'PingFang SC', 'Microsoft YaHei', serif; overflow: hidden; cursor: pointer; background: #000; }
+        #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1500&q=80') no-repeat center center; background-size: cover; z-index: -2; transition: transform 15s ease-out; }
         #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(2px); z-index: -1; }
         #start-screen { font-size: 22px; letter-spacing: 12px; color: white; transition: opacity 2s ease; position: absolute; z-index: 10; text-align: center; font-weight: 300; }
         .breathing-orb { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); opacity: 0; transition: opacity 4s ease; position: absolute; top: 12%; }
@@ -17,8 +17,8 @@
         .user-msg { text-align: right; color: rgba(255,255,255,0.8); font-style: italic; margin-left: 15%; }
         .ai-msg { text-align: left; border-left: 2px solid rgba(255,255,255,0.6); padding-left: 15px; margin-right: 15%; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-box { margin-top: 400px; width: 320px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.7); padding-bottom: 8px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: none; }
-        .chat-box.visible { opacity: 1; pointer-events: auto; }
+        .chat-box { margin-top: 400px; width: 320px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.7); padding-bottom: 8px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: auto; }
+        .chat-box.visible { opacity: 1; }
         .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-size: 16px; color: white; }
         .chat-box button { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; }
         #chat-history::-webkit-scrollbar { display: none; }
@@ -31,7 +31,7 @@
     
     <div id="start-screen">
         <p>Isle</p>
-        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px;">[ 轻触屏幕 唤醒海岛 ]</p>
+        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px;">[ 轻触屏幕 开启深度愈疗 ]</p>
     </div>
     
     <div class="breathing-orb" id="orb"></div>
@@ -56,24 +56,16 @@
                   buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate),
                   output = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
-
             const noise = audioCtx.createBufferSource();
             noise.buffer = buffer; noise.loop = true;
-
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass'; filter.frequency.value = 350;
-
             noiseGain = audioCtx.createGain();
-            
-            // 💡 改进版：渐强进场 (ADSR 曲线模拟)
             const now = audioCtx.currentTime;
-            noiseGain.gain.setValueAtTime(0.0001, now); // 起点设为极小值
-            noiseGain.gain.exponentialRampToValueAtTime(0.12, now + 8); // 8秒渐强到 0.12
-
+            noiseGain.gain.setValueAtTime(0.0001, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.12, now + 8); // 8秒渐强
             noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
             noise.start();
-            
-            // 持续潮汐波动
             function tide() {
                 const t = audioCtx.currentTime;
                 noiseGain.gain.exponentialRampToValueAtTime(0.16, t + 4);
@@ -86,25 +78,12 @@
         function startJourney() {
             if (hasStarted) return; 
             hasStarted = true;
-            
             playOceanSound();
-            
             document.getElementById("start-screen").style.opacity = 0;
             document.getElementById("bg").style.transform = "scale(1.1)";
-            
-            setTimeout(() => { 
-                let orb = document.getElementById("orb");
-                orb.style.opacity = 1; 
-                orb.classList.add("animate-breathe"); 
-            }, 1000);
-            
-            setTimeout(() => { 
-                document.getElementById("chat-history").style.opacity = 1; 
-                document.getElementById("first-greeting").style.opacity = 1; 
-            }, 4000);
-            setTimeout(() => { 
-                document.getElementById("chat-input-container").classList.add("visible"); 
-            }, 6000); 
+            setTimeout(() => { document.getElementById("orb").style.opacity = 1; document.getElementById("orb").classList.add("animate-breathe"); }, 1000);
+            setTimeout(() => { document.getElementById("chat-history").style.opacity = 1; document.getElementById("first-greeting").style.opacity = 1; }, 3000);
+            setTimeout(() => { document.getElementById("chat-input-container").classList.add("visible"); }, 5000); 
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
@@ -120,30 +99,35 @@
             input.value = ""; btn.innerText = "..."; btn.disabled = true;
 
             if (chatContext.length === 0) {
-                chatContext.push({ role: "user", parts: [{ text: "你是Isle，一位精通荣格和阿德勒的心理咨询师。语气极简、温暖。请结合心理学深度视角回复，必须反问结束。字数60字内。" }] });
-                chatContext.push({ role: "model", parts: [{ text: "好的。" }] });
+                chatContext.push({ role: "user", parts: [{ text: "你是Isle，资深心理咨询师。精通荣格、阿德勒。语气极简、温暖。字数60字内，必须以深入灵魂的反问结束。" }] });
+                chatContext.push({ role: "model", parts: [{ text: "好的，我已经准备好倾听了。" }] });
             }
             chatContext.push({ role: "user", parts: [{ text: text }] });
 
-            try {
-                // 使用 Flash 模型，提高前端 fetch 的成功率
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: chatContext })
-                });
-                
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates[0].content) {
-                    const aiReply = data.candidates[0].content.parts[0].text;
-                    chatContext.push({ role: "model", parts: [{ text: aiReply }] });
-                    chatHistoryContainer.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
-                } else if (data.error) {
-                    chatHistoryContainer.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">(Isle 暂时走神了: ${data.error.message})</div>`;
-                }
-            } catch (error) {
-                chatHistoryContainer.innerHTML += `<div class="message ai-msg">海浪太大了。请再诉说一次？</div>`;
+            // 🧠 核心：尝试两个不同的模型 ID，防止其中一个不可用
+            const models = ["gemini-1.5-flash", "gemini-1.5-pro"];
+            let success = false;
+
+            for (let model of models) {
+                if (success) break;
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: chatContext })
+                    });
+                    const data = await response.json();
+                    if (data.candidates && data.candidates[0].content) {
+                        const aiReply = data.candidates[0].content.parts[0].text;
+                        chatContext.push({ role: "model", parts: [{ text: aiReply }] });
+                        chatHistoryContainer.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
+                        success = true;
+                    }
+                } catch (e) { console.log(`Model ${model} failed, trying next...`); }
+            }
+
+            if (!success) {
+                chatHistoryContainer.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">(海浪太大了，对话被卷走了。请检查 API Key 权限或稍后再试。)</div>`;
             }
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
             btn.innerText = "深入"; btn.disabled = false;
