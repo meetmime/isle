@@ -40,7 +40,7 @@
     </div>
     
     <div class="chat-box" id="chat-input-container">
-        <input type="text" id="user-input" placeholder="诉说..." onkeypress="handleEnter(event)">
+        <input type="text" id="user-input" placeholder="将思绪交给大海..." onkeypress="handleEnter(event)">
         <button onclick="sendMessage()" id="send-btn">深入</button>
     </div>
 
@@ -63,7 +63,7 @@
             noiseGain = audioCtx.createGain();
             const now = audioCtx.currentTime;
             noiseGain.gain.setValueAtTime(0.0001, now);
-            // 🌊 完美的 8秒 渐强逻辑
+            // 🌊 保留完美 8秒 渐强逻辑
             noiseGain.gain.exponentialRampToValueAtTime(0.12, now + 8); 
             noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
             noise.start();
@@ -106,8 +106,8 @@
             chatContext.push({ role: "user", parts: [{ text: text }] });
 
             try {
-                // 🚀 强行接入 Gemini 3.0 Pro
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-pro:generateContent?key=${API_KEY}`, {
+                // 🚀 强制接入 gemini-3.0-flash
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: chatContext })
@@ -120,11 +120,11 @@
                     chatContext.push({ role: "model", parts: [{ text: aiReply }] });
                     container.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
                 } else if (data.error) {
-                    // 诊断报错信息
+                    // 🚨 报错显示器
                     container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">[系统诊断: ${data.error.message}]</div>`;
                 }
             } catch (error) {
-                container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">[网络诊断: 无法触达 Isle 核心]</div>`;
+                container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">[网络诊断: 无法触达核心。请检查代理设置。]</div>`;
             }
 
             container.scrollTop = container.scrollHeight;
