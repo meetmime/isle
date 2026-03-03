@@ -5,51 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isle - 你的心理愈疗小岛</title>
     <style>
-        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'PingFang SC', 'Georgia', serif; overflow: hidden; cursor: pointer; background: #000; }
-        
-        /* 🏝️ 保持你喜欢的海岛背景 */
-        #bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1500&q=80') no-repeat center center;
-            background-size: cover; z-index: -2; transition: transform 20s linear;
-        }
-
-        #overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(1.5px); z-index: -1;
-        }
-
-        #start-screen { font-size: 22px; letter-spacing: 12px; color: white; transition: opacity 1.5s ease; position: absolute; z-index: 10; text-align: center; font-weight: 300; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'PingFang SC', serif; overflow: hidden; cursor: pointer; background: #000; }
+        #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1500&q=80') no-repeat center center; background-size: cover; z-index: -2; transition: transform 15s ease-out; }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(2px); z-index: -1; }
+        #start-screen { font-size: 22px; letter-spacing: 12px; color: white; transition: opacity 1.5s ease; position: absolute; z-index: 10; text-align: center; font-weight: 300; }
         .breathing-orb { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); opacity: 0; transition: opacity 4s ease; position: absolute; top: 12%; }
         .animate-breathe { animation: breathe 12s ease-in-out infinite; }
-        @keyframes breathe { 0% { transform: scale(0.9); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 0.6; } 100% { transform: scale(0.9); opacity: 0.3; } }
-
-        #chat-history { 
-            width: 85%; max-width: 450px; height: 52vh; 
-            overflow-y: auto; display: flex; flex-direction: column; gap: 20px; 
-            opacity: 0; transition: opacity 2s ease; 
-            position: absolute; top: 10%; padding: 20px;
-        }
-
-        /* 🖋️ 优化后的字体样式 */
+        @keyframes breathe { 0% { transform: scale(0.9); opacity: 0.3; } 50% { transform: scale(1.25); opacity: 0.6; } 100% { transform: scale(0.9); opacity: 0.3; } }
+        #chat-history { width: 85%; max-width: 450px; height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; opacity: 0; transition: opacity 2s ease; position: absolute; top: 8%; padding: 20px; }
         .message { font-size: 16px; line-height: 1.9; color: white; text-shadow: 0 1px 5px rgba(0,0,0,0.8); animation: fadeIn 0.8s ease forwards; }
         .user-msg { text-align: right; color: rgba(255,255,255,0.8); font-style: italic; margin-left: 15%; }
         .ai-msg { text-align: left; border-left: 2px solid rgba(255,255,255,0.6); padding-left: 15px; margin-right: 15%; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .chat-box { 
-            margin-top: 420px; width: 320px; 
-            display: flex; align-items: center; 
-            border-bottom: 1.5px solid rgba(255,255,255,0.7); padding-bottom: 10px; 
-            opacity: 0; transition: opacity 2s ease; 
-            position: absolute; pointer-events: none;
-        }
+        .chat-box { margin-top: 400px; width: 320px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.7); padding-bottom: 8px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: none; }
         .chat-box.visible { opacity: 1; pointer-events: auto; }
-        .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-size: 16px; color: white; font-family: inherit; }
-        .chat-box button { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; letter-spacing: 2px; }
-
+        .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-size: 16px; color: white; }
+        .chat-box button { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; }
         #chat-history::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -60,7 +31,7 @@
     
     <div id="start-screen">
         <p>Isle</p>
-        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px;">[ 轻触屏幕 开启深度愈疗 ]</p>
+        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px;">[ 轻触屏幕 唤醒海岛 ]</p>
     </div>
     
     <div class="breathing-orb" id="orb"></div>
@@ -76,30 +47,40 @@
     <script>
         const API_KEY = 'AIzaSyDNxFYaam0j03Q4bwnlQBUwQTQtl9FmK7Y'; 
         let hasStarted = false; 
-        let chatContext = []; // 🧠 对话记忆库
-        let audioCtx;
+        let chatContext = []; 
+        let audioCtx, noiseGain;
 
-        // 🌊 沿用你认可的数学生成海浪代码
+        // 🌊 数学生成海浪 + 渐强进场 (5秒渐强)
         function playOceanSound() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const bufferSize = 2 * audioCtx.sampleRate,
                   buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate),
                   output = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
+
             const noise = audioCtx.createBufferSource();
             noise.buffer = buffer; noise.loop = true;
+
             const filter = audioCtx.createBiquadFilter();
             filter.type = 'lowpass'; filter.frequency.value = 400;
-            const gain = audioCtx.createGain();
-            gain.gain.value = 0.1;
+
+            noiseGain = audioCtx.createGain();
+            
+            // 💡 渐强进场：从 0 开始，5秒内滑向 0.12
+            noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+            noiseGain.gain.linearRampToValueAtTime(0.12, audioCtx.currentTime + 5);
+
+            noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+            noise.start();
+            
+            // 模拟潮汐波动
             function tide() {
                 const now = audioCtx.currentTime;
-                gain.gain.exponentialRampToValueAtTime(0.2, now + 4);
-                gain.gain.exponentialRampToValueAtTime(0.05, now + 8);
+                noiseGain.gain.exponentialRampToValueAtTime(0.15, now + 4);
+                noiseGain.gain.exponentialRampToValueAtTime(0.06, now + 8);
                 setTimeout(tide, 8000);
             }
-            noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
-            noise.start(); tide();
+            tide();
         }
 
         function startJourney() {
@@ -122,28 +103,22 @@
             const chatHistoryContainer = document.getElementById("chat-history");
             const btn = document.getElementById("send-btn");
 
-            // 1. 显示用户输入
             chatHistoryContainer.innerHTML += `<div class="message user-msg">${text}</div>`;
             input.value = ""; btn.innerText = "..."; btn.disabled = true;
 
-            // 🧠 关键修复：首轮对话强制植入“博学咨询师”人格
+            // 🧠 核心：构造严谨的 Gemini 请求
             if (chatContext.length === 0) {
-                chatContext.push({ 
-                    role: "user", 
-                    parts: [{ text: "从现在起你是一个名为Isle的资深心理咨询师。你读过阿德勒、荣格的所有书籍。你的语气极简、温暖。请结合心理学深度视角回复，字数60字内，必须以反问结束。明白请回：好的。" }] 
-                });
-                chatContext.push({ 
-                    role: "model", 
-                    parts: [{ text: "好的，我已经准备好在海边倾听你的灵魂。" }] 
-                });
+                // 将人设作为第一条“背景记忆”注入
+                chatContext.push({ role: "user", parts: [{ text: "从现在起你是一个名为Isle的资深心理咨询师。你精通荣格、阿德勒。语气温暖极简。请结合心理学深度视角回复，字数60字内，必须以反问结束。" }] });
+                chatContext.push({ role: "model", parts: [{ text: "好的，我已经准备好在海边倾听你的灵魂。" }] });
             }
-            
-            // 将用户最新的话存入历史
             chatContext.push({ role: "user", parts: [{ text: text }] });
 
             try {
-                // 💡 使用更稳定的 API 呼叫逻辑 (Gemini 1.5 Pro)
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${API_KEY}`, {
+                // 使用 v1beta 接口通常对直接前端 fetch 更友好
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: chatContext })
@@ -153,20 +128,15 @@
                 
                 if (data.candidates && data.candidates[0].content) {
                     const aiReply = data.candidates[0].content.parts[0].text;
-                    
-                    // 🧠 关键修复：将 AI 的回复也存入历史，形成真正的对话流
                     chatContext.push({ role: "model", parts: [{ text: aiReply }] });
-                    
                     chatHistoryContainer.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
-                } else {
-                    // 如果模型报错或无权限，显示具体错误以便排查
-                    throw new Error(data.error ? data.error.message : "未知连接错误");
+                } else if (data.error) {
+                    // 🚨 如果 API 报错，直接把错误显示出来，方便调试
+                    chatHistoryContainer.innerHTML += `<div class="message ai-msg" style="color:#ff6b6b;">(系统提示: ${data.error.message})</div>`;
                 }
             } catch (error) {
-                console.error(error);
-                chatHistoryContainer.innerHTML += `<div class="message ai-msg" style="color:#d9534f;">(海浪声太大了，Isle 暂时走神了: ${error.message})</div>`;
+                chatHistoryContainer.innerHTML += `<div class="message ai-msg">海浪带走了回声。请再试一次。(网络连接异常)</div>`;
             }
-            
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
             btn.innerText = "深入"; btn.disabled = false;
         }
