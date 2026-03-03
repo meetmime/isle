@@ -5,29 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isle - 你的心理愈疗小岛</title>
     <style>
-        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #000; font-family: 'PingFang SC', serif; overflow: hidden; cursor: pointer; }
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #000; font-family: 'PingFang SC', 'Microsoft YaHei', serif; overflow: hidden; cursor: pointer; }
         #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1500&q=80') no-repeat center center; background-size: cover; z-index: -2; transition: transform 20s linear; }
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(1px); z-index: -1; }
-        #start-screen { font-size: 20px; letter-spacing: 10px; color: white; transition: opacity 1.5s ease; position: absolute; z-index: 10; text-align: center; font-weight: 300; }
-        .breathing-orb { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); opacity: 0; transition: opacity 4s ease; position: absolute; top: 10%; }
-        .animate-breathe { animation: breathe 10s ease-in-out infinite; }
-        @keyframes breathe { 0% { transform: scale(0.9); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 0.6; } 100% { transform: scale(0.9); opacity: 0.3; } }
-        #chat-history { width: 85%; max-width: 450px; height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; opacity: 0; transition: opacity 2s ease; position: absolute; top: 8%; padding: 20px; }
-        .message { font-size: 16px; line-height: 1.8; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.5); animation: fadeIn 0.8s ease forwards; }
-        .user-msg { text-align: right; color: rgba(255,255,255,0.8); font-style: italic; }
-        .ai-msg { text-align: left; border-left: 2px solid rgba(255,255,255,0.5); padding-left: 15px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-box { margin-top: 400px; width: 300px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.7); padding-bottom: 8px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: none; }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(1.5px); z-index: -1; }
+        #start-screen { font-size: 22px; letter-spacing: 12px; color: white; transition: opacity 1.5s ease; position: absolute; z-index: 10; text-align: center; font-weight: 300; text-shadow: 0 2px 15px rgba(0,0,0,0.5); }
+        .breathing-orb { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); opacity: 0; transition: opacity 4s ease; position: absolute; top: 12%; }
+        .animate-breathe { animation: breathe 12s ease-in-out infinite; }
+        @keyframes breathe { 0% { transform: scale(0.9); opacity: 0.3; } 50% { transform: scale(1.25); opacity: 0.6; } 100% { transform: scale(0.9); opacity: 0.3; } }
+        #chat-history { width: 85%; max-width: 450px; height: 50vh; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; opacity: 0; transition: opacity 2s ease; position: absolute; top: 10%; padding: 20px; scroll-behavior: smooth; }
+        .message { font-size: 16px; line-height: 1.9; color: white; text-shadow: 0 1px 4px rgba(0,0,0,0.6); animation: fadeIn 0.8s ease forwards; }
+        .user-msg { text-align: right; color: rgba(255,255,255,0.85); font-style: italic; margin-left: 15%; }
+        .ai-msg { text-align: left; border-left: 2px solid rgba(255,255,255,0.6); padding-left: 18px; margin-right: 15%; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-box { margin-top: 420px; width: 320px; display: flex; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.8); padding-bottom: 10px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: none; }
         .chat-box.visible { opacity: 1; pointer-events: auto; }
-        .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-size: 16px; color: white; }
-        .chat-box button { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-size: 16px; color: white; font-family: inherit; }
+        .chat-box button { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; letter-spacing: 3px; }
         #chat-history::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body onclick="startJourney()">
 
     <audio id="bgm" loop preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/1188/1188-preview.mp3" type="audio/mpeg">
+        <source src="https://www.soundjay.com/nature/ocean-wave-1.mp3" type="audio/mpeg">
     </audio>
     
     <div id="bg"></div>
@@ -35,12 +35,12 @@
     
     <div id="start-screen">
         <p>Isle</p>
-        <p style="font-size: 11px; margin-top: 10px; letter-spacing: 3px;">[ 轻触屏幕 听海入心 ]</p>
+        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px; opacity: 0.8;">[ 轻触屏幕 开启深度愈疗 ]</p>
     </div>
     
     <div class="breathing-orb" id="orb"></div>
     <div id="chat-history">
-        <div class="message ai-msg" id="first-greeting" style="opacity: 0;">欢迎来到 Isle。听着浪声，此刻你心中最想留给这片海的秘密是什么？</div>
+        <div class="message ai-msg" id="first-greeting" style="opacity: 0;">欢迎登岛。此刻听着浪潮，你感觉自己的心境像是什么颜色的？</div>
     </div>
     
     <div class="chat-box" id="chat-input-container">
@@ -58,11 +58,11 @@
             hasStarted = true;
             
             const audio = document.getElementById("bgm");
-            audio.volume = 0.6;
-            audio.play().catch(e => console.log("Play blocked"));
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Audio Play Triggered"));
             
             document.getElementById("start-screen").style.opacity = 0;
-            document.getElementById("bg").style.transform = "scale(1.1)";
+            document.getElementById("bg").style.transform = "scale(1.15)";
             
             setTimeout(() => { 
                 document.getElementById("orb").style.opacity = 1; 
@@ -72,10 +72,10 @@
             setTimeout(() => { 
                 document.getElementById("chat-history").style.opacity = 1; 
                 document.getElementById("first-greeting").style.opacity = 1; 
-            }, 3000);
+            }, 3500);
             setTimeout(() => { 
                 document.getElementById("chat-input-container").classList.add("visible"); 
-            }, 5000); 
+            }, 5500); 
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
@@ -93,29 +93,39 @@
             btn.innerText = "..."; btn.disabled = true;
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
 
-            // 🧠 核心逻辑：确保 AI 记住上下文
+            // 🧠 核心优化：首轮对话强制植入性格
+            if (chatContext.length === 0) {
+                chatContext.push({
+                    role: "user",
+                    parts: [{ text: "你是一个名为Isle的资深心理咨询师。你熟读阿德勒、荣格书籍。语气极简、温暖。请结合心理学深度视角回复，必须以反问结束。回复控制在60字内。如果你理解了，请开始对话。" }]
+                });
+                chatContext.push({
+                    role: "model",
+                    parts: [{ text: "好的，我已经准备好倾听你的灵魂。" }]
+                });
+            }
+
             chatContext.push({ role: "user", parts: [{ text: text }] });
 
-            const sysPrompt = "你是一个名为Isle的资深心理咨询师。精通荣格、阿德勒心理学。语气极简、温暖且富有洞察力。请根据用户的话进行深度对话，绝对不能重复。每一句回复必须以一个指向内在探索的问题结束。字数控制在60字内。";
-
             try {
+                // 使用目前兼容性最广的 generateContent 接口
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        contents: chatContext,
-                        systemInstruction: { parts: [{ text: sysPrompt }] }
-                    })
+                    body: JSON.stringify({ contents: chatContext })
                 });
                 
                 const data = await response.json();
                 if (data.candidates && data.candidates[0].content) {
                     const aiReply = data.candidates[0].content.parts[0].text;
-                    chatContext.push({ role: "model", parts: [{ text: aiReply }] }); // 存入历史
+                    chatContext.push({ role: "model", parts: [{ text: aiReply }] });
                     chatHistoryContainer.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
+                } else {
+                    throw new Error("API Response Error");
                 }
             } catch (error) {
-                chatHistoryContainer.innerHTML += `<div class="message ai-msg">这种沉默，是否也是一种表达？你感觉此时的沉默在对你说什么？</div>`;
+                console.error(error);
+                chatHistoryContainer.innerHTML += `<div class="message ai-msg">这种感觉并不容易。你能试着描述一下这种情绪在身体哪个部位最明显吗？</div>`;
             }
 
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
