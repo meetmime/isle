@@ -7,12 +7,10 @@
     <style>
         body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #F4F1EC; font-family: 'Georgia', serif; color: #5C5853; overflow: hidden; cursor: pointer; }
         
-        /* 🏝️ 极简海岛：淡雅的雾感渐变 */
         #island-view { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at 50% 30%, #EBE6DE 0%, #F4F1EC 70%); z-index: -1; }
         
-        #start-screen { font-size: 16px; letter-spacing: 5px; transition: opacity 2s ease; position: absolute; text-align: center; color: #9A938A; }
+        #start-screen { font-size: 16px; letter-spacing: 5px; transition: opacity 2s ease; position: absolute; text-align: center; color: #9A938A; z-index: 10; }
 
-        /* 🌊 呼吸的光晕：模拟海浪起伏 */
         .breathing-orb { width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, #E1D9D1 0%, rgba(225, 217, 209, 0) 75%); opacity: 0; transition: opacity 4s ease; position: absolute; top: 15%; }
         .animate-breathe { animation: breathe 12s ease-in-out infinite; }
         @keyframes breathe { 0% { transform: scale(0.85); opacity: 0.4; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(0.85); opacity: 0.4; } }
@@ -29,21 +27,20 @@
         .chat-box input { background: transparent; border: none; outline: none; flex-grow: 1; font-family: 'Georgia', serif; color: #5C5853; font-size: 15px; }
         .chat-box button { background: transparent; border: none; color: #9A938A; cursor: pointer; font-size: 13px; letter-spacing: 3px; }
 
-        /* 隐藏滚动条 */
         #chat-history::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body onclick="startJourney()">
 
     <audio id="bgm" loop preload="auto">
-        <source src="https://www.soundjay.com/nature/ocean-wave-1.mp3" type="audio/mpeg">
+        <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_783d1a3825.mp3" type="audio/mpeg">
     </audio>
     
     <div id="island-view"></div>
     
     <div id="start-screen">
         <p>Isle</p>
-        <p style="font-size: 11px; margin-top: 20px;">[ 轻触屏幕 听海开启 ]</p>
+        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 2px;">[ 轻触屏幕 听海开启 ]</p>
     </div>
     
     <div class="breathing-orb" id="orb"></div>
@@ -67,8 +64,14 @@
             hasStarted = true;
             
             const audio = document.getElementById("bgm");
-            audio.volume = 0.5;
-            audio.play().catch(e => console.log("播放失败:", e));
+            audio.volume = 0.4;
+            // 💡 尝试播放，如果失败则输出到控制台
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log("音频自动播放被拦截，通常需用户再次点击:", error);
+                });
+            }
             
             document.getElementById("start-screen").style.opacity = 0;
             setTimeout(() => { 
@@ -77,13 +80,14 @@
                 orb.classList.add("animate-breathe"); 
             }, 1000);
             
+            // 💡 缩短了对话出现的时间，让反馈更及时
             setTimeout(() => { 
                 document.getElementById("chat-history").style.opacity = 1; 
                 document.getElementById("first-greeting").style.opacity = 1; 
-            }, 8000);
+            }, 5000);
             setTimeout(() => { 
                 document.getElementById("chat-input-container").classList.add("visible"); 
-            }, 10000); 
+            }, 7000); 
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
@@ -100,7 +104,6 @@
             input.value = "";
             btn.innerText = "..."; btn.disabled = true;
 
-            // 心理学专家指令
             const sysPrompt = "你是一个名为Isle的资深心理分析师，精通荣格、阿德勒。语气温暖、极简。请结合心理学深度视角回复，字数控制在60字内，并以一个关于内在探索的反问结束。";
 
             history.push({ role: "user", parts: [{ text: text }] });
@@ -120,7 +123,7 @@
                 chatHistory.scrollTop = chatHistory.scrollHeight; 
 
             } catch (error) {
-                chatHistory.innerHTML += `<div class="message ai-msg">正如荣格所说，不曾觉醒的潜意识会成为命运。你感觉这股情绪在试图提醒你什么？</div>`;
+                chatHistory.innerHTML += `<div class="message ai-msg">荣格曾言：'不曾觉醒的潜意识会成为命运。' 你感觉这股情绪在试图提醒你什么？</div>`;
             }
             btn.innerText = "深入"; btn.disabled = false;
         }
