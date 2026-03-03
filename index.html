@@ -5,42 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isle - 你的心理愈疗小岛</title>
     <style>
-        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'PingFang SC', serif; overflow: hidden; cursor: pointer; background: #000; }
+        body { margin: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'PingFang SC', 'Georgia', serif; overflow: hidden; cursor: pointer; background: #000; }
         #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1500&q=80') no-repeat center center; background-size: cover; z-index: -2; transition: transform 20s linear; }
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px); z-index: -1; }
-        #start-screen { font-size: 22px; letter-spacing: 12px; color: white; transition: opacity 2s ease; position: absolute; z-index: 10; text-align: center; }
-        #chat-history { width: 85%; max-width: 450px; height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; opacity: 0; transition: opacity 2s ease; position: absolute; top: 12%; padding: 20px; }
-        .message { font-size: 16px; line-height: 2; color: white; text-shadow: 0 1px 5px rgba(0,0,0,0.8); animation: fadeIn 0.8s ease forwards; }
-        .user-msg { text-align: right; color: rgba(255,255,255,0.7); font-style: italic; }
-        .ai-msg { text-align: left; border-left: 2px solid rgba(255,255,255,0.5); padding-left: 18px; }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2.5px); z-index: -1; }
+        #start-screen { font-size: 22px; letter-spacing: 12px; color: white; transition: opacity 2s ease; position: absolute; z-index: 10; text-align: center; font-weight: 300; text-shadow: 0 2px 15px rgba(0,0,0,0.6); }
+        
+        #chat-history { width: 85%; max-width: 450px; height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; opacity: 0; transition: opacity 2.5s ease; position: absolute; top: 12%; padding: 20px; }
+        .message { font-size: 16px; line-height: 2.1; color: white; text-shadow: 0 1px 5px rgba(0,0,0,0.8); animation: fadeIn 1s ease forwards; }
+        .user-msg { text-align: right; color: rgba(255,255,255,0.7); font-style: italic; margin-left: 15%; }
+        .ai-msg { text-align: left; border-left: 2px solid rgba(255,255,255,0.5); padding-left: 18px; margin-right: 15%; }
+        
         .chat-box { margin-top: 450px; width: 320px; display: flex; align-items: center; border-bottom: 1.5px solid rgba(255,255,255,0.7); padding-bottom: 10px; opacity: 0; transition: opacity 2s ease; position: absolute; pointer-events: none; }
-        .visible { opacity: 1 !important; pointer-events: auto !important; }
+        .chat-box.visible { opacity: 1; pointer-events: auto; }
         input { background: transparent; border: none; outline: none; flex-grow: 1; font-size: 16px; color: white; font-family: inherit; }
         button { background: transparent; border: none; color: white; cursor: pointer; font-size: 14px; font-weight: 600; letter-spacing: 2px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         #chat-history::-webkit-scrollbar { display: none; }
+        #reset-key { position: absolute; bottom: 20px; right: 20px; color: rgba(255,255,255,0.3); font-size: 10px; text-decoration: none; z-index: 100; }
     </style>
 </head>
 <body onclick="startJourney()">
 
     <div id="bg"></div>
     <div id="overlay"></div>
-    <div id="start-screen"><p>Isle</p><p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px;">[ 轻触屏幕 开启深度愈疗 ]</p></div>
-    <div id="chat-history"><div class="message ai-msg" id="first-greeting" style="opacity: 0;">欢迎登岛。此刻听着浪潮，你感觉自己的心境像是什么颜色的？</div></div>
-    <div class="chat-box" id="chat-input-container"><input type="text" id="user-input" placeholder="诉说..." onkeypress="handleEnter(event)"><button onclick="sendMessage()" id="send-btn">深入</button></div>
+    
+    <div id="start-screen">
+        <p>Isle</p>
+        <p style="font-size: 11px; margin-top: 20px; letter-spacing: 4px;">[ 轻触屏幕 开启深度愈疗 ]</p>
+    </div>
+    
+    <div id="chat-history">
+        <div class="message ai-msg" id="first-greeting" style="opacity: 0;">欢迎登岛。此刻听着渐起的浪潮，你感觉自己的心境像是什么颜色的？</div>
+    </div>
+    
+    <div class="chat-box" id="chat-input-container">
+        <input type="text" id="user-input" placeholder="诉说..." onkeypress="handleEnter(event)">
+        <button onclick="sendMessage()" id="send-btn">深入</button>
+    </div>
+
+    <a href="javascript:void(0)" id="reset-key" onclick="resetKey()">更换 Key</a>
 
     <script>
-        let API_KEY = localStorage.getItem('MY_ISLE_SECRET'); 
-        let hasStarted = false; let chatContext = []; let audioCtx, noiseGain;
+        let API_KEY = localStorage.getItem('MY_ISLE_SECRET_V2'); 
+        let hasStarted = false; 
+        let chatContext = []; 
+        let audioCtx, noiseGain;
 
+        function resetKey() {
+            localStorage.removeItem('MY_ISLE_SECRET_V2');
+            location.reload();
+        }
+
+        // 🌊 完美的 8秒 渐强逻辑
         function playOceanSound() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const bufferSize = 2 * audioCtx.sampleRate, buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate), output = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) { output[i] = Math.random() * 2 - 1; }
             const noise = audioCtx.createBufferSource(); noise.buffer = buffer; noise.loop = true;
             const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 350;
-            noiseGain = audioCtx.createGain(); const now = audioCtx.currentTime;
-            noiseGain.gain.setValueAtTime(0.0001, now); noiseGain.gain.exponentialRampToValueAtTime(0.12, now + 8); 
+            noiseGain = audioCtx.createGain();
+            const now = audioCtx.currentTime;
+            noiseGain.gain.setValueAtTime(0.0001, now);
+            noiseGain.gain.exponentialRampToValueAtTime(0.12, now + 8); 
             noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
             noise.start();
             function tide() { const t = audioCtx.currentTime; noiseGain.gain.exponentialRampToValueAtTime(0.16, t + 4); noiseGain.gain.exponentialRampToValueAtTime(0.06, t + 8); setTimeout(tide, 8000); }
@@ -49,33 +76,52 @@
 
         function startJourney() {
             if (hasStarted) return; 
+
+            // 🚀 核心：如果没 Key，强制弹出询问框
             if (!API_KEY) {
-                const k = prompt("请输入新申请的 API Key (Key 不会泄露，仅保存在本地):");
-                if (k && k.startsWith('AIza')) { localStorage.setItem('MY_ISLE_SECRET', k); API_KEY = k; } else return;
+                const k = prompt("为了开启 Isle 的灵魂，请粘贴你新申请的 Gemini API Key (Key 仅保存在你的浏览器本地):");
+                if (k && k.startsWith('AIza')) {
+                    localStorage.setItem('MY_ISLE_SECRET_V2', k);
+                    API_KEY = k;
+                } else {
+                    alert("请输入有效的 API Key 以继续。");
+                    return;
+                }
             }
-            hasStarted = true; playOceanSound();
+
+            hasStarted = true;
+            playOceanSound();
             document.getElementById("start-screen").style.opacity = 0;
             document.getElementById("bg").style.transform = "scale(1.15)";
-            setTimeout(() => { document.getElementById("chat-history").style.opacity = 1; document.getElementById("first-greeting").style.opacity = 1; }, 3000);
-            setTimeout(() => { document.getElementById("chat-input-container").classList.add("visible"); }, 5000); 
+            
+            setTimeout(() => { 
+                document.getElementById("chat-history").style.opacity = 1; 
+                document.getElementById("first-greeting").style.opacity = 1; 
+            }, 3500);
+            setTimeout(() => { 
+                document.getElementById("chat-input-container").classList.add("visible"); 
+            }, 5500); 
         }
 
         function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 
         async function sendMessage() {
             const input = document.getElementById("user-input");
-            const text = input.value.trim(); if (!text) return;
+            const text = input.value.trim();
+            if (!text) return;
             const container = document.getElementById("chat-history");
             const btn = document.getElementById("send-btn");
+
             container.innerHTML += `<div class="message user-msg">${text}</div>`;
             input.value = ""; btn.innerText = "..."; btn.disabled = true;
+            container.scrollTop = container.scrollHeight;
 
             if (chatContext.length === 0) {
-                chatContext.push({ role: "user", parts: [{ text: "你是Isle，资深心理咨询师，精通荣格和阿德勒。语气极简。60字内回复并反问。" }] });
+                chatContext.push({ role: "user", parts: [{ text: "你是Isle，一位精通荣格和阿德勒的心理咨询师。语气极简温暖。60字内回复并以灵魂反问结束。" }] });
             }
             chatContext.push({ role: "user", parts: [{ text: text }] });
 
-            // 🚀 关键：通过 CORS Proxy 绕过浏览器限制
+            // 🚀 核心：通过 Proxy 绕过跨域拦截
             const proxy = "https://corsproxy.io/?";
             const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
 
@@ -85,18 +131,22 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: chatContext })
                 });
+
                 const data = await response.json();
-                if (data.candidates) {
+                
+                if (data.candidates && data.candidates[0].content) {
                     const aiReply = data.candidates[0].content.parts[0].text;
                     chatContext.push({ role: "model", parts: [{ text: aiReply }] });
                     container.innerHTML += `<div class="message ai-msg">${aiReply}</div>`;
                 } else {
-                    container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">Isle 暂时无法应答: ${data.error ? data.error.message : '未知错误'}</div>`;
+                    container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">Isle 暂时走神了: ${data.error ? data.error.message : '请检查 Key 是否有效'}</div>`;
                 }
             } catch (error) {
-                container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">连接超时。请确保你的代理节点能直连 Google。</div>`;
+                container.innerHTML += `<div class="message ai-msg" style="color:#ffb3b3;">连接超时。请确保你能直连 Google 服务。</div>`;
             }
-            container.scrollTop = container.scrollHeight; btn.innerText = "深入"; btn.disabled = false;
+
+            container.scrollTop = container.scrollHeight;
+            btn.innerText = "深入"; btn.disabled = false;
         }
     </script>
 </body>
